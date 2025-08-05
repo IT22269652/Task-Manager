@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -36,6 +38,33 @@ const ManageUsers = () => {
     }
   }, []);
 
+  const generatePDF = () => {
+    if (users.length === 0) {
+      alert("No users available to generate a PDF.");
+      return;
+    }
+
+    const doc = new jsPDF();
+    doc.text("User Report", 14, 20);
+
+    const tableColumn = ["Full Name", "Email", "Contact Number"];
+    const tableRows = users.map((user) => [
+      user.fullName,
+      user.email,
+      user.contactNumber,
+    ]);
+
+    doc.autoTable(tableColumn, tableRows, {
+      startY: 30,
+      theme: "grid",
+      headStyles: { fillColor: [41, 128, 185] },
+      styles: { fontSize: 10, cellPadding: 2 },
+    });
+
+    doc.save("users_report.pdf");
+    console.log("PDF generation attempted");
+  };
+
   if (loading) return <div className="text-center p-8">Loading...</div>;
   if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
@@ -72,7 +101,7 @@ const ManageUsers = () => {
               href="/admin/users"
               className="flex items-center p-2 text-blue-600 bg-blue-100 rounded-lg"
             >
-              <span className="mr-2">👥</span> Team Members
+              <span className="mr-2">👥</span> Manage Users
             </a>
             <a
               href="/logout"
@@ -86,7 +115,15 @@ const ManageUsers = () => {
 
       {/* Main Content */}
       <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Manage Users</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Manage Users</h1>
+          <button
+            onClick={generatePDF}
+            className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition duration-300"
+          >
+            Generate PDF
+          </button>
+        </div>
         <div className="bg-white rounded-lg shadow-lg p-6">
           {users.length > 0 ? (
             <table className="w-full text-left">
