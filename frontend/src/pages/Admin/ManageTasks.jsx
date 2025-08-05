@@ -1,40 +1,38 @@
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import UpdateTasks from "./UpdateTasks"; // Ensure this path is correct
 
 const ManageTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/tasks/all", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-          },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setTasks(data);
-        } else {
-          setError("Failed to fetch tasks. Please try again.");
-        }
-      } catch (err) {
-        setError("Network error. Please check your connection.");
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchTasks();
+  }, []);
 
-    if (localStorage.getItem("user")) {
-      fetchTasks();
-    } else {
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/tasks/all", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setTasks(data);
+      } else {
+        setError("Failed to fetch tasks. Please check your backend or token.");
+      }
+    } catch (err) {
+      setError("Network error. Please check your connection.");
+      console.error("Fetch error:", err);
+    } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   const generatePDF = () => {
     if (tasks.length === 0) {
@@ -47,10 +45,10 @@ const ManageTasks = () => {
 
     const tableColumn = ["Title", "Description", "Priority", "Due Date"];
     const tableRows = tasks.map((task) => [
-      task.title,
-      task.description,
-      task.priority,
-      new Date(task.dueDate).toLocaleDateString(),
+      task.title || "N/A",
+      task.description || "N/A",
+      task.priority || "N/A",
+      task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "N/A",
     ]);
 
     doc.autoTable(tableColumn, tableRows, {
@@ -62,6 +60,43 @@ const ManageTasks = () => {
 
     doc.save("tasks_report.pdf");
     console.log("PDF generation attempted");
+  };
+
+  const handleDelete = async (taskId) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/tasks/${taskId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+          }
+        );
+        if (response.ok) {
+          setTasks(tasks.filter((task) => task._id !== taskId));
+          console.log("Task deleted successfully");
+        } else {
+          const data = await response.json();
+          alert(data.message || "Failed to delete task.");
+        }
+      } catch (error) {
+        alert("Network error. Please try again later.");
+        console.error("Delete error:", error);
+      }
+    }
+  };
+
+  const handleUpdate = (task) => {
+    setSelectedTask(task);
+    console.log("Opening update for task:", task._id);
+  };
+
+  const handleUpdateComplete = () => {
+    setSelectedTask(null);
+    fetchTasks(); // Refresh tasks after update
+    console.log("Task update completed, refreshing list");
   };
 
   if (loading) return <div className="text-center p-8">Loading...</div>;
@@ -132,16 +167,33 @@ const ManageTasks = () => {
                   <th className="p-2">Description</th>
                   <th className="p-2">Priority</th>
                   <th className="p-2">Due Date</th>
+                  <th className="p-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {tasks.map((task) => (
                   <tr key={task._id} className="border-b">
-                    <td className="p-2">{task.title}</td>
-                    <td className="p-2">{task.description}</td>
-                    <td className="p-2">{task.priority}</td>
+                    <td className="p-2">{task.title || "N/A"}</td>
+                    <td className="p-2">{task.description || "N/A"}</td>
+                    <td className="p-2">{task.priority || "N/A"}</td>
                     <td className="p-2">
-                      {new Date(task.dueDate).toLocaleDateString()}
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td className="p-2 flex space-x-2">
+                      <button
+                        onClick={() => handleUpdate(task)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => handleDelete(task._id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -152,6 +204,13 @@ const ManageTasks = () => {
           )}
         </div>
       </div>
+      {selectedTask && (
+        <UpdateTasks
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onUpdate={handleUpdateComplete}
+        />
+      )}
     </div>
   );
 };
