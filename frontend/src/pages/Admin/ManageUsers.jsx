@@ -6,6 +6,7 @@ const ManageUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -63,6 +64,33 @@ const ManageUsers = () => {
 
     doc.save("users_report.pdf");
     console.log("PDF generation attempted");
+  };
+
+  const handleDelete = async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/auth/users/${userId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+          }
+        );
+        if (response.ok) {
+          setUsers(users.filter((user) => user._id !== userId));
+          setSuccessMessage("Delete successful");
+          setTimeout(() => setSuccessMessage(""), 3000); // Hide after 3 seconds
+        } else {
+          const data = await response.json();
+          alert(data.message || "Failed to delete user.");
+        }
+      } catch (error) {
+        alert("Network error. Please try again later.");
+        console.error("Delete error:", error);
+      }
+    }
   };
 
   if (loading) return <div className="text-center p-8">Loading...</div>;
@@ -125,6 +153,11 @@ const ManageUsers = () => {
           </button>
         </div>
         <div className="bg-white rounded-lg shadow-lg p-6">
+          {successMessage && (
+            <div className="mb-4 p-2 bg-green-100 text-green-700 text-center rounded">
+              {successMessage}
+            </div>
+          )}
           {users.length > 0 ? (
             <table className="w-full text-left">
               <thead>
@@ -132,6 +165,7 @@ const ManageUsers = () => {
                   <th className="p-2">Full Name</th>
                   <th className="p-2">Email</th>
                   <th className="p-2">Contact Number</th>
+                  <th className="p-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -140,6 +174,14 @@ const ManageUsers = () => {
                     <td className="p-2">{user.fullName}</td>
                     <td className="p-2">{user.email}</td>
                     <td className="p-2">{user.contactNumber}</td>
+                    <td className="p-2">
+                      <button
+                        onClick={() => handleDelete(user._id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
