@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const ManageTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -34,33 +36,32 @@ const ManageTasks = () => {
     }
   }, []);
 
-  const handleDownloadReport = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/tasks/report", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        },
-      });
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "task_report.pdf";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        alert("Report downloaded successfully!");
-      } else {
-        const data = await response.json();
-        alert(data.message || "Failed to generate report.");
-      }
-    } catch (error) {
-      alert("Network error. Please try again later.");
-      console.error("Download error:", error);
+  const generatePDF = () => {
+    if (tasks.length === 0) {
+      alert("No tasks available to generate a PDF.");
+      return;
     }
+
+    const doc = new jsPDF();
+    doc.text("Task Report", 14, 20);
+
+    const tableColumn = ["Title", "Description", "Priority", "Due Date"];
+    const tableRows = tasks.map((task) => [
+      task.title,
+      task.description,
+      task.priority,
+      new Date(task.dueDate).toLocaleDateString(),
+    ]);
+
+    doc.autoTable(tableColumn, tableRows, {
+      startY: 30,
+      theme: "grid",
+      headStyles: { fillColor: [41, 128, 185] },
+      styles: { fontSize: 10, cellPadding: 2 },
+    });
+
+    doc.save("tasks_report.pdf");
+    console.log("PDF generation attempted");
   };
 
   if (loading) return <div className="text-center p-8">Loading...</div>;
@@ -99,7 +100,7 @@ const ManageTasks = () => {
               href="/admin/users"
               className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-2">👥</span> Team Members
+              <span className="mr-2">👥</span> Manage Users
             </a>
             <a
               href="/logout"
@@ -116,10 +117,10 @@ const ManageTasks = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Manage Tasks</h1>
           <button
-            onClick={handleDownloadReport}
+            onClick={generatePDF}
             className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition duration-300"
           >
-            Download Report
+            Generate PDF
           </button>
         </div>
         <div className="bg-white rounded-lg shadow-lg p-6">
