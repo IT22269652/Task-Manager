@@ -1,3 +1,4 @@
+// CreateTask.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,34 +8,54 @@ const CreateTask = () => {
     title: "",
     description: "",
     priority: "Low",
-    dueDate: "",
+    dueDate: "", // Use dueDate to match backend
+    checklist: [],
   });
   const [error, setError] = useState("");
+  const [checklistItem, setChecklistItem] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
   };
 
+  const handleChecklistChange = (e) => {
+    setChecklistItem(e.target.value);
+  };
+
+  const addChecklistItem = (e) => {
+    e.preventDefault();
+    if (checklistItem.trim()) {
+      setFormData({
+        ...formData,
+        checklist: [...formData.checklist, checklistItem.trim()],
+      });
+      setChecklistItem("");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.description || !formData.dueDate) {
-      setError("All fields except priority are required.");
+      setError("All fields except priority and checklist are required.");
       return;
     }
 
     try {
       const response = await fetch("http://localhost:5000/api/tasks/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body: JSON.stringify(formData), // Send JSON instead of FormData
       });
-      const data = await response.json();
+      const result = await response.json();
       if (response.ok) {
-        alert(data.message || "Task created successfully!");
+        alert(result.message || "Task created successfully!");
         navigate("/admin/tasks");
       } else {
-        setError(data.message || "Failed to create task.");
+        setError(result.message || "Failed to create task.");
       }
     } catch (error) {
       setError("Network error. Please try again later.");
@@ -75,7 +96,7 @@ const CreateTask = () => {
               href="/admin/users"
               className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-2">👥</span> Team Members
+              <span className="mr-2">👥</span> Manage Users
             </a>
             <a
               href="/logout"
@@ -121,7 +142,7 @@ const CreateTask = () => {
                 required
               ></textarea>
             </div>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Priority
@@ -150,6 +171,36 @@ const CreateTask = () => {
                   required
                 />
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                TODO Checklist
+              </label>
+              <div className="mt-1 flex space-x-2">
+                <input
+                  type="text"
+                  value={checklistItem}
+                  onChange={handleChecklistChange}
+                  className="p-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Add a task"
+                />
+                <button
+                  onClick={addChecklistItem}
+                  className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Add
+                </button>
+              </div>
+              <ul className="mt-2 space-y-1">
+                {formData.checklist.map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center p-1 bg-gray-100 rounded"
+                  >
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="text-right">
               <button
