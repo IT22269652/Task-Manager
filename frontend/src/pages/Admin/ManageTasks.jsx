@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import UpdateTasks from "./UpdateTasks"; // Ensure this path is correct
+import UpdateTasks from "./UpdateTasks";
 
 const ManageTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -21,6 +21,7 @@ const ManageTasks = () => {
         },
       });
       const data = await response.json();
+      console.log("Fetched tasks:", data); // Debug log
       if (response.ok) {
         setTasks(data);
       } else {
@@ -43,12 +44,19 @@ const ManageTasks = () => {
     const doc = new jsPDF();
     doc.text("Task Report", 14, 20);
 
-    const tableColumn = ["Title", "Description", "Priority", "Due Date"];
+    const tableColumn = [
+      "Title",
+      "Description",
+      "Priority",
+      "Due Date",
+      "Checklist",
+    ];
     const tableRows = tasks.map((task) => [
       task.title || "N/A",
       task.description || "N/A",
       task.priority || "N/A",
       task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "N/A",
+      task.checklist?.length > 0 ? task.checklist.join(", ") : "N/A",
     ]);
 
     doc.autoTable(tableColumn, tableRows, {
@@ -95,7 +103,7 @@ const ManageTasks = () => {
 
   const handleUpdateComplete = () => {
     setSelectedTask(null);
-    fetchTasks(); // Refresh tasks after update
+    fetchTasks();
     console.log("Task update completed, refreshing list");
   };
 
@@ -160,45 +168,78 @@ const ManageTasks = () => {
         </div>
         <div className="bg-white rounded-lg shadow-lg p-6">
           {tasks.length > 0 ? (
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b">
-                  <th className="p-2">Title</th>
-                  <th className="p-2">Description</th>
-                  <th className="p-2">Priority</th>
-                  <th className="p-2">Due Date</th>
-                  <th className="p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tasks.map((task) => (
-                  <tr key={task._id} className="border-b">
-                    <td className="p-2">{task.title || "N/A"}</td>
-                    <td className="p-2">{task.description || "N/A"}</td>
-                    <td className="p-2">{task.priority || "N/A"}</td>
-                    <td className="p-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tasks.map((task) => (
+                <div
+                  key={task._id}
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-md"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {task.title || "N/A"}
+                    </h3>
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded ${
+                        task.priority === "High"
+                          ? "bg-red-100 text-red-800"
+                          : task.priority === "Medium"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {task.priority || "Low"}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2">
+                    {task.description || "N/A"}
+                  </p>
+                  <div className="text-xs text-gray-500 mb-2">
+                    <p>
+                      <strong>Start Date:</strong>{" "}
+                      {task.createdAt
+                        ? new Date(task.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                    <p>
+                      <strong>Due Date:</strong>{" "}
                       {task.dueDate
                         ? new Date(task.dueDate).toLocaleDateString()
                         : "N/A"}
-                    </td>
-                    <td className="p-2 flex space-x-2">
-                      <button
-                        onClick={() => handleUpdate(task)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
-                      >
-                        Update
-                      </button>
-                      <button
-                        onClick={() => handleDelete(task._id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </p>
+                  </div>
+                  <div className="text-xs text-gray-500 mb-2">
+                    <strong>Checklist:</strong>
+                    {task.checklist?.length > 0 ? (
+                      <ul className="list-disc list-inside mt-1">
+                        {task.checklist.map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      " N/A"
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500 mb-2">
+                    <strong>Task Done:</strong> 0 /{" "}
+                    {task.checklist?.length || 0}
+                  </div>
+                  <div className="flex justify-end space-x-2 mt-2">
+                    <button
+                      onClick={() => handleUpdate(task)}
+                      className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
+                    >
+                      Update
+                    </button>
+                    <button
+                      onClick={() => handleDelete(task._id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <p className="text-gray-600">No tasks found.</p>
           )}

@@ -1,3 +1,4 @@
+// UpdateTasks.jsx
 import React, { useState, useEffect } from "react";
 
 const UpdateTasks = ({ task, onClose, onUpdate }) => {
@@ -6,16 +7,21 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
     description: "",
     priority: "Low",
     dueDate: "",
+    checklist: [],
   });
   const [error, setError] = useState("");
+  const [checklistItem, setChecklistItem] = useState("");
 
   useEffect(() => {
     if (task) {
       setFormData({
-        title: task.title,
-        description: task.description,
-        priority: task.priority,
-        dueDate: new Date(task.dueDate).toISOString().split("T")[0],
+        title: task.title || "",
+        description: task.description || "",
+        priority: task.priority || "Low",
+        dueDate: task.dueDate
+          ? new Date(task.dueDate).toISOString().split("T")[0]
+          : "",
+        checklist: task.checklist || [],
       });
     }
   }, [task]);
@@ -25,10 +31,32 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
     setError("");
   };
 
+  const handleChecklistChange = (e) => {
+    setChecklistItem(e.target.value);
+  };
+
+  const addChecklistItem = (e) => {
+    e.preventDefault();
+    if (checklistItem.trim()) {
+      setFormData({
+        ...formData,
+        checklist: [...formData.checklist, checklistItem.trim()],
+      });
+      setChecklistItem("");
+    }
+  };
+
+  const removeChecklistItem = (index) => {
+    setFormData({
+      ...formData,
+      checklist: formData.checklist.filter((_, i) => i !== index),
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.description || !formData.dueDate) {
-      setError("All fields except priority are required.");
+      setError("All fields except priority and checklist are required.");
       return;
     }
 
@@ -46,8 +74,8 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
       );
       const data = await response.json();
       if (response.ok) {
-        onUpdate(); // Refresh tasks after update
-        onClose(); // Close the popup
+        onUpdate();
+        onClose();
       } else {
         setError(data.message || "Failed to update task.");
       }
@@ -120,6 +148,44 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
                 required
               />
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              TODO Checklist
+            </label>
+            <div className="mt-1 flex space-x-2">
+              <input
+                type="text"
+                value={checklistItem}
+                onChange={handleChecklistChange}
+                className="p-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Add a task"
+              />
+              <button
+                type="button"
+                onClick={addChecklistItem}
+                className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Add
+              </button>
+            </div>
+            <ul className="mt-2 space-y-1">
+              {formData.checklist.map((item, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between p-1 bg-gray-100 rounded"
+                >
+                  <span>{item}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeChecklistItem(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="flex justify-end space-x-4">
             <button
