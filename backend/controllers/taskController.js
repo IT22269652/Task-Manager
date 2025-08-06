@@ -3,12 +3,13 @@ const Task = require("../models/task");
 
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate } = req.body;
+    const { title, description, priority, dueDate, checklist } = req.body;
     const task = new Task({
       title,
       description,
       priority,
       dueDate: new Date(dueDate),
+      checklist: checklist || [], // Handle checklist
     });
     await task.save();
     res.status(201).json({ message: "Task created successfully", task });
@@ -28,10 +29,16 @@ exports.getTasks = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate } = req.body;
+    const { title, description, priority, dueDate, checklist } = req.body;
     const task = await Task.findByIdAndUpdate(
       req.params.id,
-      { title, description, priority, dueDate: new Date(dueDate) },
+      {
+        title,
+        description,
+        priority,
+        dueDate: new Date(dueDate),
+        checklist: checklist || [], // Handle checklist
+      },
       { new: true, runValidators: true }
     );
     if (!task) return res.status(404).json({ message: "Task not found" });

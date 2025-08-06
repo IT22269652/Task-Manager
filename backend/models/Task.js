@@ -6,6 +6,7 @@ const taskSchema = new mongoose.Schema({
   description: { type: String, required: true },
   priority: { type: String, enum: ["Low", "Medium", "High"], required: true },
   dueDate: { type: Date, required: true },
+  checklist: [{ type: String }], // Added checklist field
   createdAt: { type: Date, default: Date.now },
 });
 
