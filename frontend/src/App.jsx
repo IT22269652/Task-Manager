@@ -12,6 +12,7 @@ import MyTasks from "./pages/User/MyTasks";
 import ViewTaskDetails from "./pages/User/ViewTaskDetails";
 
 import PrivateRoute from "./routes/PrivateRoute";
+import UpdateTasks from "./pages/Admin/UpdateTasks";
 
 const App = () => {
   return (
@@ -19,7 +20,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/" element={<SignUp />} />
 
           {/* Admin Routes */}
           <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
@@ -27,6 +28,7 @@ const App = () => {
             <Route path="admin/tasks" element={<ManageTasks />} />
             <Route path="admin/create-task" element={<CreateTask />} />
             <Route path="admin/users" element={<ManageUsers />} />
+            <Route path="admin/update-task/:id" element={<UpdateTasks />} />
           </Route>
 
           {/* User Routes */}
