@@ -7,6 +7,7 @@ const ManageUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -62,8 +63,13 @@ const ManageUsers = () => {
       styles: { fontSize: 10, cellPadding: 2 },
     });
 
-    doc.save("users_report.pdf");
-    console.log("PDF generation attempted");
+    try {
+      doc.save("users_report.pdf");
+      console.log("PDF generation and download attempted");
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Failed to generate PDF. Check console for details.");
+    }
   };
 
   const handleDelete = async (userId) => {
@@ -81,7 +87,7 @@ const ManageUsers = () => {
         if (response.ok) {
           setUsers(users.filter((user) => user._id !== userId));
           setSuccessMessage("Delete successful");
-          setTimeout(() => setSuccessMessage(""), 3000); // Hide after 3 seconds
+          setTimeout(() => setSuccessMessage(""), 3000);
         } else {
           const data = await response.json();
           alert(data.message || "Failed to delete user.");
@@ -92,6 +98,10 @@ const ManageUsers = () => {
       }
     }
   };
+
+  const filteredUsers = users.filter((user) =>
+    user.fullName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) return <div className="text-center p-8">Loading...</div>;
   if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
@@ -144,7 +154,13 @@ const ManageUsers = () => {
       {/* Main Content */}
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Manage Users</h1>
+          <input
+            type="text"
+            placeholder="Search by full name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <button
             onClick={generatePDF}
             className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition duration-300"
@@ -169,7 +185,7 @@ const ManageUsers = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user._id} className="border-b">
                     <td className="p-2">{user.fullName}</td>
                     <td className="p-2">{user.email}</td>
