@@ -8,8 +8,10 @@ const CreateTask = () => {
     title: "",
     description: "",
     priority: "Low",
-    dueDate: "", // Use dueDate to match backend
+    dueDate: "",
     checklist: [],
+    status: "Pending", // Default status
+    completedCount: 0, // Default completed count
   });
   const [error, setError] = useState("");
   const [checklistItem, setChecklistItem] = useState("");
@@ -48,7 +50,7 @@ const CreateTask = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
         },
-        body: JSON.stringify(formData), // Send JSON instead of FormData
+        body: JSON.stringify(formData),
       });
       const result = await response.json();
       if (response.ok) {
