@@ -3,13 +3,23 @@ const Task = require("../models/task");
 
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate, checklist } = req.body;
+    const {
+      title,
+      description,
+      priority,
+      dueDate,
+      checklist,
+      status,
+      completedCount,
+    } = req.body;
     const task = new Task({
       title,
       description,
       priority,
       dueDate: new Date(dueDate),
-      checklist: checklist || [], // Handle checklist
+      checklist: checklist || [],
+      status: status || "Pending",
+      completedCount: completedCount || 0,
     });
     await task.save();
     res.status(201).json({ message: "Task created successfully", task });
@@ -29,7 +39,15 @@ exports.getTasks = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   try {
-    const { title, description, priority, dueDate, checklist } = req.body;
+    const {
+      title,
+      description,
+      priority,
+      dueDate,
+      checklist,
+      status,
+      completedCount,
+    } = req.body;
     const task = await Task.findByIdAndUpdate(
       req.params.id,
       {
@@ -37,7 +55,9 @@ exports.updateTask = async (req, res) => {
         description,
         priority,
         dueDate: new Date(dueDate),
-        checklist: checklist || [], // Handle checklist
+        checklist: checklist || [],
+        status: status || "Pending",
+        completedCount: completedCount || 0,
       },
       { new: true, runValidators: true }
     );
