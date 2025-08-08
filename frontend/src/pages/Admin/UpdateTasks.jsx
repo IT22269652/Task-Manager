@@ -8,12 +8,21 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
     priority: "Low",
     dueDate: "",
     checklist: [],
+    status: "Pending",
+    completedCount: 0,
   });
   const [error, setError] = useState("");
   const [checklistItem, setChecklistItem] = useState("");
 
   useEffect(() => {
     if (task) {
+      // Initialize checklist with checked status based on completedCount
+      const updatedChecklist = task.checklist.map((item) => ({
+        text: item,
+        checked:
+          task.completedCount > 0 &&
+          task.checklist.indexOf(item) < task.completedCount,
+      }));
       setFormData({
         title: task.title || "",
         description: task.description || "",
@@ -21,7 +30,9 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
         dueDate: task.dueDate
           ? new Date(task.dueDate).toISOString().split("T")[0]
           : "",
-        checklist: task.checklist || [],
+        checklist: updatedChecklist,
+        status: task.status || "Pending",
+        completedCount: task.completedCount || 0,
       });
     }
   }, [task]);
@@ -40,7 +51,10 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
     if (checklistItem.trim()) {
       setFormData({
         ...formData,
-        checklist: [...formData.checklist, checklistItem.trim()],
+        checklist: [
+          ...formData.checklist,
+          { text: checklistItem.trim(), checked: false },
+        ],
       });
       setChecklistItem("");
     }
@@ -50,6 +64,41 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
     setFormData({
       ...formData,
       checklist: formData.checklist.filter((_, i) => i !== index),
+    });
+  };
+
+  const handleCheckboxChange = (index) => {
+    const newChecklist = [...formData.checklist];
+    const currentCheckedCount = newChecklist.filter(
+      (item) => item.checked
+    ).length;
+    newChecklist[index] = {
+      ...newChecklist[index],
+      checked: !newChecklist[index].checked,
+    };
+
+    let completedCount = currentCheckedCount;
+    if (newChecklist[index].checked) {
+      completedCount += 1;
+    } else {
+      completedCount -= 1;
+    }
+
+    let status = "Pending";
+    if (completedCount > 0 && completedCount < newChecklist.length) {
+      status = "In Progress";
+    } else if (
+      completedCount === newChecklist.length &&
+      newChecklist.length > 0
+    ) {
+      status = "Complete";
+    }
+
+    setFormData({
+      ...formData,
+      checklist: newChecklist,
+      completedCount,
+      status,
     });
   };
 
@@ -69,7 +118,10 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            ...formData,
+            checklist: formData.checklist.map((item) => item.text), // Send only text array to backend
+          }),
         }
       );
       const data = await response.json();
@@ -175,7 +227,15 @@ const UpdateTasks = ({ task, onClose, onUpdate }) => {
                   key={index}
                   className="flex items-center justify-between p-1 bg-gray-100 rounded"
                 >
-                  <span>{item}</span>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={item.checked || false}
+                      onChange={() => handleCheckboxChange(index)}
+                      className="mr-2"
+                    />
+                    <span>{item.text}</span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeChecklistItem(index)}
