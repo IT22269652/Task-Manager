@@ -6,7 +6,13 @@ const taskSchema = new mongoose.Schema({
   description: { type: String, required: true },
   priority: { type: String, enum: ["Low", "Medium", "High"], required: true },
   dueDate: { type: Date, required: true },
-  checklist: [{ type: String }], // Added checklist field
+  checklist: [{ type: String }],
+  status: {
+    type: String,
+    enum: ["Pending", "In Progress", "Complete"],
+    default: "Pending",
+  },
+  completedCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 
