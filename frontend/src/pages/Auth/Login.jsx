@@ -30,9 +30,15 @@ const Login = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        alert(data.message || "Login successful!");
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/admin/dashboard");
+        if (
+          formData.email === "admin@gmail.com" &&
+          formData.password === "admin@123"
+        ) {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/user/dashboard");
+        }
       } else {
         setError(data.message || "Login failed. Please try again.");
       }
