@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const pieChartRef = useRef(null);
   const barChartRef = useRef(null);
@@ -162,12 +164,6 @@ const Dashboard = () => {
             >
               <span className="mr-3 text-xl">👥</span> Manage Users
             </a>
-            <a
-              href="/logout"
-              className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              <span className="mr-3 text-xl">🚪</span> Logout
-            </a>
           </nav>
         </div>
       </div>
@@ -192,13 +188,79 @@ const Dashboard = () => {
               {taskCounts.complete} Completed
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="bg-white p-6 rounded-xl shadow-md">
               <canvas ref={pieChartRef} id="taskDistributionChart"></canvas>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md">
               <canvas ref={barChartRef} id="taskPriorityChart"></canvas>
             </div>
+          </div>
+          {/* Task Data Display */}
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Recent Tasks
+          </h2>
+          <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
+            {tasks.length > 0 ? (
+              tasks.slice(0, 6).map((task) => (
+                <div
+                  key={task._id}
+                  className="min-w-[250px] bg-white p-4 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition duration-300"
+                >
+                  <h3 className="text-md font-semibold text-gray-900 mb-2">
+                    {task.title || "N/A"}
+                  </h3>
+                  <div className="flex flex-col space-y-1 text-sm text-gray-600">
+                    <p>
+                      <span className="font-medium">Status:</span>{" "}
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          task.status === "Pending"
+                            ? "bg-purple-100 text-purple-700"
+                            : task.status === "In Progress"
+                            ? "bg-blue-100 text-blue-500"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {task.status || "Pending"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="font-medium">Priority:</span>{" "}
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          task.priority === "High"
+                            ? "bg-red-100 text-red-700"
+                            : task.priority === "Medium"
+                            ? "bg-orange-100 text-orange-600"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {task.priority || "Low"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="font-medium">Due:</span>{" "}
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-center w-full">
+                No tasks available.
+              </p>
+            )}
+          </div>
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate("/admin/tasks")}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+              Show All
+            </button>
           </div>
         </div>
       </div>
