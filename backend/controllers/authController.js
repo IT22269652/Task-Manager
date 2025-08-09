@@ -11,6 +11,12 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    if (email === "admin@gmail.com") {
+      return res
+        .status(400)
+        .json({ message: "This email is reserved for admin login." });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -19,6 +25,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       contactNumber,
+      role: "user",
     });
     await user.save();
 
@@ -31,6 +38,13 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (email === "admin@gmail.com" && password === "admin@123") {
+      return res.status(200).json({
+        message: "Admin login successful",
+        user: { id: "admin", role: "admin" },
+      });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -55,6 +69,31 @@ exports.getUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { fullName, email, contactNumber } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { fullName, email, contactNumber },
+      { new: true, runValidators: true }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
