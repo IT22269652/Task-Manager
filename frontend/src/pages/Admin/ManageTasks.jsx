@@ -125,7 +125,7 @@ const ManageTasks = () => {
 
   const handleUpdateComplete = () => {
     setSelectedTask(null);
-    fetchTasks();
+    fetchTasks(); // Refresh tasks to update both ManageTasks and Dashboard
     console.log("Task update completed, refreshing list");
   };
 
@@ -193,12 +193,6 @@ const ManageTasks = () => {
               className="flex items-center p-3 text-gray-700 hover:bg-blue-50 rounded-lg transition duration-300"
             >
               <span className="mr-3 text-lg">👥</span> Manage Users
-            </a>
-            <a
-              href="/logout"
-              className="flex items-center p-3 text-gray-700 hover:bg-blue-50 rounded-lg transition duration-300"
-            >
-              <span className="mr-3 text-lg">🚪</span> Logout
             </a>
           </nav>
         </div>

@@ -75,36 +75,30 @@ const CreateTask = () => {
               Task Manager
             </h2>
           </div>
-          <nav className="space-y-2">
+          <nav className="space-y-3">
             <a
               href="/admin/dashboard"
-              className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-2">🏠</span> Dashboard
+              <span className="mr-3 text-xl">🏠</span> Dashboard
             </a>
             <a
               href="/admin/tasks"
-              className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-2">📋</span> Manage Tasks
+              <span className="mr-3 text-xl">📋</span> Manage Tasks
             </a>
             <a
               href="/admin/create-task"
-              className="flex items-center p-2 text-blue-600 bg-blue-100 rounded-lg"
+              className="flex items-center p-3 text-blue-600 bg-blue-100 rounded-lg"
             >
-              <span className="mr-2">➕</span> Create Task
+              <span className="mr-3 text-xl">➕</span> Create Task
             </a>
             <a
               href="/admin/users"
-              className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-2">👥</span> Manage Users
-            </a>
-            <a
-              href="/logout"
-              className="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            >
-              <span className="mr-2">🚪</span> Logout
+              <span className="mr-3 text-xl">👥</span> Manage Users
             </a>
           </nav>
         </div>
