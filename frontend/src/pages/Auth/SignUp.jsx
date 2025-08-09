@@ -31,6 +31,10 @@ const SignUp = () => {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (formData.email === "admin@gmail.com") {
+      setError("This email is reserved for admin login.");
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:5000/api/auth/signup", {
