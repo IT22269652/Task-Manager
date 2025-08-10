@@ -9,31 +9,64 @@ const SignUp = () => {
     password: "",
     contactNumber: "",
   });
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({}); // Object to store validation errors for each field
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    // Clear error for the field being edited
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Full Name validation (letters and spaces only)
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required.";
+    } else if (!nameRegex.test(formData.fullName)) {
+      newErrors.fullName = "Full name can only contain letters and spaces.";
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+    } else if (formData.email === "admin@gmail.com") {
+      newErrors.email = "This email is reserved for admin login.";
+    }
+
+    // Password validation
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!formData.password) {
+      newErrors.password = "Password is required.";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters.";
+    } else if (!passwordRegex.test(formData.password)) {
+      newErrors.password =
+        "Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.";
+    }
+
+    // Contact Number validation (exactly 10 digits)
+    const contactRegex = /^\d{10}$/;
+    if (!formData.contactNumber) {
+      newErrors.contactNumber = "Contact number is required.";
+    } else if (!contactRegex.test(formData.contactNumber)) {
+      newErrors.contactNumber = "Contact number must be exactly 10 digits.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.contactNumber
-    ) {
-      setError("All fields are required.");
-      return;
-    }
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-    if (formData.email === "admin@gmail.com") {
-      setError("This email is reserved for admin login.");
-      return;
+    if (!validateForm()) {
+      return; // Stop submission if validation fails
     }
 
     try {
@@ -47,12 +80,17 @@ const SignUp = () => {
         alert(data.message || "Signup successful!");
         navigate("/login");
       } else {
-        setError(data.message || "Signup failed. Please try again.");
+        setErrors({
+          ...errors,
+          general: data.message || "Signup failed. Please try again.",
+        });
       }
     } catch (error) {
-      setError(
-        "Network error. Please check your connection or try again later."
-      );
+      setErrors({
+        ...errors,
+        general:
+          "Network error. Please check your connection or try again later.",
+      });
       console.error("Signup error:", error);
     }
   };
@@ -69,7 +107,9 @@ const SignUp = () => {
             Join us today by entering your details below.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <div className="text-red-500 text-center">{error}</div>}
+            {errors.general && (
+              <div className="text-red-500 text-center">{errors.general}</div>
+            )}
             <div>
               <label className="block text-gray-700 text-sm font-semibold mb-2">
                 Full Name
@@ -79,10 +119,14 @@ const SignUp = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.fullName ? "border-red-500" : "border-gray-300"
+                }`}
                 placeholder="John"
-                required
               />
+              {errors.fullName && (
+                <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+              )}
             </div>
             <div>
               <label className="block text-gray-700 text-sm font-semibold mb-2">
@@ -93,10 +137,14 @@ const SignUp = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                }`}
                 placeholder="john@example.com"
-                required
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
             <div>
               <label className="block text-gray-700 text-sm font-semibold mb-2">
@@ -107,10 +155,14 @@ const SignUp = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                }`}
                 placeholder="Min 8 Characters"
-                required
               />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
             <div>
               <label className="block text-gray-700 text-sm font-semibold mb-2">
@@ -121,10 +173,16 @@ const SignUp = () => {
                 name="contactNumber"
                 value={formData.contactNumber}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.contactNumber ? "border-red-500" : "border-gray-300"
+                }`}
                 placeholder="1234567890"
-                required
               />
+              {errors.contactNumber && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.contactNumber}
+                </p>
+              )}
             </div>
             <button
               type="submit"
