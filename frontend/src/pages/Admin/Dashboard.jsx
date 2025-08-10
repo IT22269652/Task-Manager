@@ -144,25 +144,25 @@ const Dashboard = () => {
               href="/admin/dashboard"
               className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
             >
-              <span className="mr-3 text-xl">🏠</span> Dashboard
+              <span className="mr-3 text-xl">■</span> Dashboard
             </a>
             <a
               href="/admin/tasks"
               className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition"
             >
-              <span className="mr-3 text-xl">📋</span> Manage Tasks
+              <span className="mr-3 text-xl">▣</span> Manage Tasks
             </a>
             <a
               href="/admin/create-task"
               className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition"
             >
-              <span className="mr-3 text-xl">➕</span> Create Task
+              <span className="mr-3 text-xl">＋</span> Create Task
             </a>
             <a
               href="/admin/users"
               className="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-lg transition"
             >
-              <span className="mr-3 text-xl">👥</span> Manage Users
+              <span className="mr-3 text-xl">⧇</span> Manage Users
             </a>
           </nav>
         </div>
@@ -197,9 +197,15 @@ const Dashboard = () => {
             </div>
           </div>
           {/* Task Data Display */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Recent Tasks
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">Recent Tasks</h2>
+            <button
+              onClick={() => navigate("/admin/tasks")}
+              className="bg-blue-100 text-gray px-4 py-2 rounded-lg hover:bg-blue-100 transition duration-300"
+            >
+              Show All
+            </button>
+          </div>
           <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
             {tasks.length > 0 ? (
               tasks.slice(0, 6).map((task) => (
@@ -253,14 +259,6 @@ const Dashboard = () => {
                 No tasks available.
               </p>
             )}
-          </div>
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate("/admin/tasks")}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-            >
-              Show All
-            </button>
           </div>
         </div>
       </div>

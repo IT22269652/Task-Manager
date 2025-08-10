@@ -174,25 +174,25 @@ const ManageTasks = () => {
               href="/admin/dashboard"
               className="flex items-center p-3 text-gray-700 hover:bg-blue-50 rounded-lg transition duration-300"
             >
-              <span className="mr-3 text-lg">🏠</span> Dashboard
+              <span className="mr-3 text-lg">■</span> Dashboard
             </a>
             <a
               href="/admin/tasks"
               className="flex items-center p-3 text-blue-700 bg-blue-50 rounded-lg"
             >
-              <span className="mr-3 text-lg">📋</span> Manage Tasks
+              <span className="mr-3 text-lg">▣</span> Manage Tasks
             </a>
             <a
               href="/admin/create-task"
               className="flex items-center p-3 text-gray-700 hover:bg-blue-50 rounded-lg transition duration-300"
             >
-              <span className="mr-3 text-lg">➕</span> Create Task
+              <span className="mr-3 text-lg">＋</span> Create Task
             </a>
             <a
               href="/admin/users"
               className="flex items-center p-3 text-gray-700 hover:bg-blue-50 rounded-lg transition duration-300"
             >
-              <span className="mr-3 text-lg">👥</span> Manage Users
+              <span className="mr-3 text-lg">⧇</span> Manage Users
             </a>
           </nav>
         </div>

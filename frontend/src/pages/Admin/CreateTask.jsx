@@ -80,25 +80,25 @@ const CreateTask = () => {
               href="/admin/dashboard"
               className="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-3 text-xl">🏠</span> Dashboard
+              <span className="mr-3 text-xl">■</span> Dashboard
             </a>
             <a
               href="/admin/tasks"
               className="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-3 text-xl">📋</span> Manage Tasks
+              <span className="mr-3 text-xl">▣</span> Manage Tasks
             </a>
             <a
               href="/admin/create-task"
               className="flex items-center p-3 text-blue-600 bg-blue-100 rounded-lg"
             >
-              <span className="mr-3 text-xl">➕</span> Create Task
+              <span className="mr-3 text-xl">＋</span> Create Task
             </a>
             <a
               href="/admin/users"
               className="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
             >
-              <span className="mr-3 text-xl">👥</span> Manage Users
+              <span className="mr-3 text-xl">⧇</span> Manage Users
             </a>
           </nav>
         </div>
