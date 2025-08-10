@@ -132,7 +132,7 @@ const Dashboard = () => {
   if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-indigo-100 to-purple-50 font-sans">
+    <div className="flex h-screen bg-gradient-to-br ">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-2xl">
         <div className="p-6">
