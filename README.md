@@ -14,23 +14,26 @@ Create, manage, and delete tasks.
 Manage user accounts.
 Display task statistics using interactive graphs.
 
-
 Responsive Design: Built with Tailwind CSS for an attractive and responsive interface.
 
 Technologies Used
 
 Frontend: React.js, Tailwind CSS
-Backend: Node.js, Express.js
-Database: MongoDB
+Backend: Node.js(v22.17.1), Express.js
+Database: MongoDB(MONGO_URI=mongodb+srv://test:test123@taskmanager.1qg9uml.mongodb.net/?retryWrites=true&w=majority&appName=taskmanager, PORT=5000)
 Other: React Router, Chart.js
 
 Install Dependencies
+Frontend : npm create vite@latest, npm install react-router-dom chart.js jspdf jspdf-autotable
+Backend : npm init -y, npm install express mongoose bcryptjs cors dotenv nodemon jspdf jspdf-autotable
 
 For the client (frontend):cd frontend
 npm install
+Run - npm run dev(Access at http://localhost:5173.)
 
 For the server (backend):cd backend
 npm install
+Run - node server.js(npm run dev - (default is 5000))
 
 Usage
 
